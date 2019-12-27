@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: aukerman-git-repo
+spec:
+  type: git
+  params:
+  - name: revision
+    value: mini-data
+  - name: url
+    value: https://github.com/nikhil-thomas/odm_data_aukerman.git

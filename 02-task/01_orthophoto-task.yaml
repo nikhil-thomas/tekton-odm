@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: orthophoto
+spec:
+  inputs:
+    resources:
+    - name: image-dataset
+      type: git
+      targetPath: /dataset
+  steps:
+  - name: odm-orthophoto
+    image: opendronemap/odm
+    args:
+    - dataset
+    - --project-path
+    - /workspace
+    - --min-num-features
+    - "1000"
+    - --skip-3dmodel
+    - --mesh-size
+    - "20000"
+    - --fast-orthophoto
+    - --time

@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: ortho-
+spec:
+  taskRef:
+    name: orthophoto
+  inputs:
+    resources:
+    - name: image-dataset
+      resourceRef:
+        name: aukerman-git-repo
