@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: setup-odm-results-server-
+spec:
+  taskSpec:
+    steps:
+    - name: create-index-dot-html
+      image: ubuntu
+      workingDir: /usr/share/nginx/html
+      script: |
+        #!/usr/bin/env bash
+        echo create index.html
+
+        cat <<EOF> index.html
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <title>Welcome to nginx!</title>
+          <style>
+          body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+        }
+          </style>
+          </head>
+          <body>
+          <h1>Tekton OpenDroneMap Results</h1>
+
+          </body>
+          </html>
+        EOF
+        cat index.html
+      volumeMounts:
+      - name: odm-persistent-storage
+        mountPath: "/usr/share/nginx/html"
+    volumes:
+    - name: odm-persistent-storage
+      persistentVolumeClaim:
+        claimName: odm-storage-pv-claim

@@ -22,3 +22,28 @@ spec:
     - "20000"
     - --fast-orthophoto
     - --time
+  - name: tar-and-store
+    image: ubuntu
+    workingDir: /workspace
+    script: |
+      #!/usr/bin/env bash
+      TIME_STAMP=$(date | tr ' ' '_' | tr ':' '.')
+      tar -cvf ${TIME_STAMP}.tar ./dataset/images ./dataset/odm_orthophoto
+      [[ -d /usr/share/nginx/html/data/ ]] || mkdir -p /usr/share/nginx/html/data
+      mv ${TIME_STAMP}.tar /usr/share/nginx/html/data/${TIME_STAMP}.tar
+
+      cat /usr/share/nginx/html/index.html
+      echo before
+      echo after
+      sed -i '/<\/body>/i <a href="/data/'${TIME_STAMP}'.tar">'${TIME_STAMP}'.tar</a><hr>' /usr/share/nginx/html/index.html
+
+      echo ${TIME_STAMP}
+      cat /usr/share/nginx/html/index.html
+    volumeMounts:
+    - name: odm-persistent-storage
+      mountPath: "/usr/share/nginx/html"
+  volumes:
+  - name: odm-persistent-storage
+    persistentVolumeClaim:
+      claimName: odm-storage-pv-claim
+
