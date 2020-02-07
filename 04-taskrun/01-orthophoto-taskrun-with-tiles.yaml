@@ -1,10 +1,10 @@
 apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
-  generateName: ortho-
+  generateName: ortho-tiles-
 spec:
   taskRef:
-    name: orthophoto
+    name: orthophoto-with-tiling
   inputs:
     resources:
     - name: image-dataset

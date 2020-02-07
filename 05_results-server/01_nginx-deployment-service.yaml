@@ -25,16 +25,35 @@ spec:
         persistentVolumeClaim:
           claimName: odm-storage-pv-claim
 ---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: my-nginx
+#  labels:
+#    run: my-nginx
+#spec:
+#  type: NodePort
+#  ports:
+#  - port: 80
+#    protocol: TCP
+#  selector:
+#    run: my-nginx
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: my-nginx
+  annotations:
+    service.beta.kubernetes.io/linode-loadbalancer-throttle: "4"
   labels:
     run: my-nginx
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
-  - port: 80
+  - name: http
+    port: 80
     protocol: TCP
+    targetPort: 80
   selector:
     run: my-nginx
+  sessionAffinity: None

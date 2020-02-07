@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: orthophoto
+  name: orthophoto-with-tiling
 spec:
   inputs:
     resources:
@@ -22,21 +22,31 @@ spec:
     - "20000"
     - --fast-orthophoto
     - --time
+  - name: map-tile-gen
+    image: osgeo/gdal
+    workingDir: /workspace
+    script: |
+      #!/usr/bin/env bash
+      gdal2tiles.py -w leaflet ./dataset/odm_orthophoto/odm_orthophoto.original.tif ./dataset/odm_orthophoto/tiles
   - name: tar-and-store
     image: ubuntu
     workingDir: /workspace
     script: |
       #!/usr/bin/env bash
       TIME_STAMP=$(date | tr ' ' '_' | tr ':' '.')
-      tar -cvf ${TIME_STAMP}.tar ./dataset/images ./dataset/odm_orthophoto
-      [[ -d /usr/share/nginx/html/data/ ]] || mkdir -p /usr/share/nginx/html/data
-      mv ${TIME_STAMP}.tar /usr/share/nginx/html/data/${TIME_STAMP}.tar
+      tar -cvf ${TIME_STAMP}.tar ./dataset/odm_orthophoto
 
-      cat /usr/share/nginx/html/index.html
+      mkdir -p /usr/share/nginx/html/data/${TIME_STAMP}
+      mv ${TIME_STAMP}.tar /usr/share/nginx/html/data/${TIME_STAMP}/${TIME_STAMP}.tar
+      cd /usr/share/nginx/html/data/${TIME_STAMP}
+
+      tar -xvf ${TIME_STAMP}.tar
       echo before
-      echo after
-      sed -i '/<\/body>/i <a href="/data/'${TIME_STAMP}'.tar">'${TIME_STAMP}'.tar</a><hr>' /usr/share/nginx/html/index.html
+      cat /usr/share/nginx/html/index.html
 
+      sed -i '/<\/body>/i <a href="/data/'${TIME_STAMP}'/dataset/odm_orthophoto/tiles/leaflet.html">'${TIME_STAMP}' view map </a><hr>' /usr/share/nginx/html/index.html
+
+      echo after
       echo ${TIME_STAMP}
       cat /usr/share/nginx/html/index.html
     volumeMounts:
